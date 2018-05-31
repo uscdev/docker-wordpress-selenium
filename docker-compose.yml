@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+  wordpress:
+    image: wordpress
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 80:80
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+    networks: 
+        - wordpress-db
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks: 
+        - wordpress-db
+  seleniumhub:
+      image: selenium/standalone-firefox-debug:latest
+      ports:
+        - 4444:4444
+        - 5900:5900
+      networks: 
+        - wordpress-db
+  test:
+       build: seleniumTest
+       networks:
+           - wordpress-db
+       depends_on:
+           - seleniumhub 
+           - wordpress
+networks:
+  wordpress-db:
+    driver: overlay
